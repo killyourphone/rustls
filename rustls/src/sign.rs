@@ -2,6 +2,7 @@ use crate::error::Error;
 use crate::key;
 use crate::msgs::enums::{SignatureAlgorithm, SignatureScheme};
 
+use ring::rand::{Random, SecureRandom, SystemRandom};
 use ring::signature::{self, EcdsaKeyPair, Ed25519KeyPair, RsaKeyPair};
 
 use std::convert::TryFrom;
@@ -277,7 +278,7 @@ impl EcdsaSigningKey {
         scheme: SignatureScheme,
         sigalg: &'static signature::EcdsaSigningAlgorithm,
     ) -> Result<Self, ()> {
-        EcdsaKeyPair::from_pkcs8(sigalg, &der.0)
+        EcdsaKeyPair::from_pkcs8(sigalg, &der.0, &SystemRandom::new())
             .map(|kp| Self {
                 key: Arc::new(kp),
                 scheme,
